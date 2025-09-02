@@ -8,17 +8,22 @@
 import SwiftUI
 
 struct ContentView: View {
+    @EnvironmentObject private var onboardingManager: OnboardingManager
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        Group {
+            if onboardingManager.hasCompletedOnboarding {
+                MainTabView()
+            } else {
+                OnboardingView()
+            }
         }
-        .padding()
+        .preferredColorScheme(.dark) // Fixed dark theme with your color palette
     }
 }
 
 #Preview {
     ContentView()
+        .environmentObject(OnboardingManager())
+        .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
 }

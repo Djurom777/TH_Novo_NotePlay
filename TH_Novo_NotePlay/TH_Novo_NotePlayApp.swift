@@ -9,9 +9,18 @@ import SwiftUI
 
 @main
 struct TH_Novo_NotePlayApp: App {
+    let persistenceController = PersistenceController.shared
+    @StateObject private var onboardingManager = OnboardingManager()
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environment(\.managedObjectContext, persistenceController.container.viewContext)
+                .environmentObject(onboardingManager)
+                .onAppear {
+                    // Seed initial data if needed
+                    DataSeeder.shared.seedInitialDataIfNeeded()
+                }
         }
     }
 }
