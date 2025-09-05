@@ -156,13 +156,15 @@ struct NoteRowView: View {
                 Text(note.title ?? "Untitled")
                     .font(.headline)
                     .foregroundColor(AppColors.primaryText)
-                    .lineLimit(1)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
                 
-                Spacer()
+                Spacer(minLength: 8)
                 
                 Text(formattedDate)
                     .font(.caption)
                     .foregroundColor(AppColors.secondaryText)
+                    .fixedSize(horizontal: true, vertical: false)
             }
             
             if let body = note.body, !body.isEmpty {
@@ -181,6 +183,7 @@ struct NoteRowView: View {
         )
         .padding(.horizontal, 16)
         .padding(.vertical, 4)
+        .frame(minHeight: 60) // Ensure minimum height for proper text display
     }
 }
 

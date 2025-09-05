@@ -47,6 +47,9 @@ struct MainTabView: View {
         .onAppear {
             configureTabBarAppearance()
         }
+        // Ensure proper scaling for compatibility mode
+        .scaleEffect(1.0)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onChange(of: selectedTab) { newValue in
             withAnimation(.easeInOut(duration: 0.2)) {
                 // Tab selection animation handled by the system

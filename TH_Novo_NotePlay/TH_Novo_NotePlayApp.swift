@@ -17,10 +17,6 @@ struct TH_Novo_NotePlayApp: App {
             ContentView()
                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
                 .environmentObject(onboardingManager)
-                .onAppear {
-                    // Seed initial data if needed
-                    DataSeeder.shared.seedInitialDataIfNeeded()
-                }
         }
     }
 }

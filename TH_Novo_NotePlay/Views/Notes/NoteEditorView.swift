@@ -11,34 +11,14 @@ struct NoteEditorView: View {
     let note: Note?
     let onSave: (String, String) -> Void
     
+    @State private var title: String = ""
+    @State private var content: String = ""
     @Environment(\.dismiss) private var dismiss
-    @State private var title: String
-    @State private var noteBody: String
-    @State private var showingDiscardAlert = false
     @FocusState private var titleFocused: Bool
     @FocusState private var bodyFocused: Bool
     
-    private var isEditing: Bool {
+    var isEditing: Bool {
         note != nil
-    }
-    
-    private var hasChanges: Bool {
-        if let note = note {
-            return title != (note.title ?? "") || noteBody != (note.body ?? "")
-        } else {
-            return !title.isEmpty || !noteBody.isEmpty
-        }
-    }
-    
-    private var canSave: Bool {
-        !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-    }
-    
-    init(note: Note?, onSave: @escaping (String, String) -> Void) {
-        self.note = note
-        self.onSave = onSave
-        self._title = State(initialValue: note?.title ?? "")
-        self._noteBody = State(initialValue: note?.body ?? "")
     }
     
     var body: some View {
@@ -47,119 +27,114 @@ struct NoteEditorView: View {
                 AppColors.mainBackground
                     .ignoresSafeArea()
                 
-                VStack(spacing: 0) {
-                    // Title Field
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Title")
-                            .font(.headline)
-                            .foregroundColor(AppColors.primaryText)
+                ScrollView {
+                    VStack(spacing: 24) {
+                        // Title Field
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Note Title")
+                                .font(.headline)
+                                .foregroundColor(AppColors.primaryText)
+                            
+                            TextField("Enter note title...", text: $title)
+                                .textFieldStyle(PlainTextFieldStyle())
+                                .font(.title2)
+                                .foregroundColor(AppColors.primaryText)
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 12)
+                                .frame(minHeight: 50)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .foregroundColor(AppColors.secondaryBackground)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 12)
+                                                .stroke(titleFocused ? AppColors.accent : Color.clear, lineWidth: 2)
+                                        )
+                                )
+                                .focused($titleFocused)
+                        }
                         
-                        TextField("Enter note title...", text: $title)
-                            .textFieldStyle(PlainTextFieldStyle())
-                            .font(.title2)
-                            .foregroundColor(AppColors.primaryText)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 12)
-                            .background(
+                        // Body Field
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Note Content")
+                                .font(.headline)
+                                .foregroundColor(AppColors.primaryText)
+                            
+                            ZStack(alignment: .topLeading) {
                                 RoundedRectangle(cornerRadius: 12)
-                                    .foregroundColor(AppColors.secondaryBackground)
+                                    .fill(AppColors.secondaryBackground)
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 12)
-                                            .stroke(titleFocused ? AppColors.accent : Color.clear, lineWidth: 2)
+                                            .stroke(bodyFocused ? AppColors.accent : Color.clear, lineWidth: 2)
                                     )
-                            )
-                            .focused($titleFocused)
+                                
+                                if content.isEmpty {
+                                    Text("Start writing your note...")
+                                        .foregroundColor(AppColors.secondaryText)
+                                        .padding(.horizontal, 20)
+                                        .padding(.vertical, 16)
+                                        .allowsHitTesting(false)
+                                }
+                                
+                                TextEditor(text: $content)
+                                    .foregroundColor(AppColors.primaryText)
+                                    .background(Color.clear)
+                                    .padding(.horizontal, 16)
+                                    .padding(.vertical, 12)
+                                    .focused($bodyFocused)
+                            }
+                            .frame(minHeight: 200)
+                        }
+                        
+                        Spacer(minLength: 50)
                     }
                     .padding(.horizontal, 16)
                     .padding(.top, 16)
-                    
-                    // Body Field
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Content")
-                            .font(.headline)
-                            .foregroundColor(AppColors.primaryText)
-                        
-                        ZStack(alignment: .topLeading) {
-                            RoundedRectangle(cornerRadius: 12)
-                                .foregroundColor(AppColors.secondaryBackground)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .stroke(bodyFocused ? AppColors.accent : Color.clear, lineWidth: 2)
-                                )
-                            
-                            if noteBody.isEmpty {
-                                Text("Start writing your note...")
-                                    .foregroundColor(AppColors.secondaryText)
-                                    .padding(.horizontal, 20)
-                                    .padding(.vertical, 16)
-                                    .allowsHitTesting(false)
-                            }
-                            
-                            TextEditor(text: $noteBody)
-                                .foregroundColor(AppColors.primaryText)
-                                .background(Color.clear)
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 12)
-                                .focused($bodyFocused)
-                        }
-                        .frame(minHeight: 200)
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.top, 24)
-                    
-                    Spacer()
                 }
             }
             .navigationTitle(isEditing ? "Edit Note" : "New Note")
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarBackButtonHidden(true)
-            .navigationBarItems(
-                leading: Button("Cancel") {
-                    if hasChanges {
-                        showingDiscardAlert = true
-                    } else {
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") {
                         dismiss()
                     }
+                    .foregroundColor(AppColors.secondaryText)
                 }
-                .foregroundColor(AppColors.secondaryText),
                 
-                trailing: Button("Save") {
-                    onSave(title, noteBody)
-                    dismiss()
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Save") {
+                        onSave(title.trimmingCharacters(in: .whitespacesAndNewlines), 
+                               content.trimmingCharacters(in: .whitespacesAndNewlines))
+                        dismiss()
+                    }
+                    .foregroundColor(AppColors.accent)
+                    .font(.headline)
+                    .disabled(title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 }
-                .foregroundColor(canSave ? AppColors.accent : AppColors.secondaryText)
-                .disabled(!canSave)
-                .font(.headline)
-            )
-            .onAppear {
-                configureNavigationAppearance()
-                if !isEditing {
+            }
+        }
+        .onAppear {
+            if let note = note {
+                title = note.title ?? ""
+                content = note.body ?? ""
+            }
+            
+            // Focus title field for new notes
+            if !isEditing {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     titleFocused = true
                 }
             }
-            .alert("Discard Changes?", isPresented: $showingDiscardAlert) {
-                Button("Discard", role: .destructive) {
-                    dismiss()
-                }
-                Button("Cancel", role: .cancel) { }
-            } message: {
-                Text("Are you sure you want to discard your changes?")
-            }
         }
-        .navigationViewStyle(StackNavigationViewStyle())
-    }
-    
-    private func configureNavigationAppearance() {
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = UIColor(AppColors.mainBackground)
-        appearance.titleTextAttributes = [.foregroundColor: UIColor(AppColors.primaryText)]
-        
-        UINavigationBar.appearance().standardAppearance = appearance
-        UINavigationBar.appearance().scrollEdgeAppearance = appearance
+        // Ensure proper scaling for compatibility mode
+        .scaleEffect(1.0)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 
 #Preview {
-    NoteEditorView(note: nil) { _, _ in }
+    NoteEditorView(note: nil) { title, content in
+        print("Saving: \(title) - \(content)")
+    }
 }

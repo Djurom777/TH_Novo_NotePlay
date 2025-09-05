@@ -69,6 +69,7 @@ struct TaskEditorView: View {
                                 .foregroundColor(AppColors.primaryText)
                                 .padding(.horizontal, 16)
                                 .padding(.vertical, 12)
+                                .frame(minHeight: 50) // Ensure minimum height for proper text display
                                 .background(
                                     RoundedRectangle(cornerRadius: 12)
                                         .foregroundColor(AppColors.secondaryBackground)

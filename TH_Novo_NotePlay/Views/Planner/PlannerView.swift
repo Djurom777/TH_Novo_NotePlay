@@ -258,16 +258,20 @@ struct TaskRowView: View {
                     .font(.headline)
                     .foregroundColor(task.isDone ? AppColors.secondaryText : AppColors.primaryText)
                     .strikethrough(task.isDone)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
                 
                 Text(formattedDate)
                     .font(.caption)
                     .foregroundColor(isOverdue ? AppColors.primaryButton : AppColors.secondaryText)
+                    .fixedSize(horizontal: false, vertical: true)
                 
                 if let notes = task.notes, !notes.isEmpty {
                     Text(notes)
                         .font(.body)
                         .foregroundColor(AppColors.secondaryText)
-                        .lineLimit(2)
+                        .lineLimit(3)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
             }
             
@@ -275,6 +279,7 @@ struct TaskRowView: View {
         }
         .padding(.vertical, 12)
         .padding(.horizontal, 16)
+        .frame(minHeight: 70) // Ensure minimum height for proper text display
         .background(
             RoundedRectangle(cornerRadius: 12)
                 .fill(task.isDone ? AppColors.secondaryBackground.opacity(0.6) : AppColors.secondaryBackground)

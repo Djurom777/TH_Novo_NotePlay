@@ -86,6 +86,7 @@ struct OnboardingView: View {
                             )
                         }
                         .padding(.horizontal, 32)
+                        .frame(maxWidth: 400) // Prevent buttons from becoming too wide on large screens
                         
                         Button(action: {
                             onboardingManager.completeOnboarding()
@@ -114,6 +115,7 @@ struct OnboardingView: View {
                             )
                         }
                         .padding(.horizontal, 32)
+                        .frame(maxWidth: 400) // Prevent buttons from becoming too wide on large screens
                         .scaleEffect(1.05)
                         .animation(.easeInOut(duration: 0.3).repeatCount(3, autoreverses: true), value: currentPage)
                     }
@@ -155,18 +157,23 @@ struct OnboardingPageView: View {
                     .fontWeight(.bold)
                     .foregroundColor(AppColors.primaryText)
                     .multilineTextAlignment(.center)
+                    .lineLimit(nil)
+                    .fixedSize(horizontal: false, vertical: true)
                 
                 Text(subtitle)
                     .font(.title3)
                     .fontWeight(.medium)
                     .foregroundColor(AppColors.accent)
                     .multilineTextAlignment(.center)
+                    .lineLimit(nil)
+                    .fixedSize(horizontal: false, vertical: true)
                 
                 Text(description)
                     .font(.body)
                     .foregroundColor(AppColors.secondaryText)
                     .multilineTextAlignment(.center)
                     .lineLimit(nil)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             .padding(.horizontal, 32)
             
